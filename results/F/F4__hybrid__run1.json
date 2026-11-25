@@ -1,0 +1,140 @@
+{
+ "problem": "F4",
+ "pipeline": "hybrid",
+ "run": 1,
+ "model": "qwen2.5:3b",
+ "timestamp": "2026-11-25T15:32:26",
+ "answer": {
+  "status": "none",
+  "solution": {},
+  "objective": null
+ },
+ "trace": {
+  "attempts": [
+   {
+    "ir": {
+     "variables": {
+      "Roksolana_red": 0,
+      "Roksolana_green": 0,
+      "Roksolana_blue": 0,
+      "Stepan_red": 0,
+      "Stepan_green": 0,
+      "Stepan_blue": 0,
+      "Tetiana_red": 0,
+      "Tetiana_green": 0,
+      "Tetiana_blue": 0
+     },
+     "all_different": [
+      [
+       "Roksolana_red",
+       "Roksolana_green",
+       "Roksolana_blue"
+      ],
+      [
+       "Stepan_red",
+       "Stepan_green",
+       "Stepan_blue"
+      ],
+      [
+       "Tetiana_red",
+       "Tetiana_green",
+       "Tetiana_blue"
+      ]
+     ],
+     "constraints": [
+      "Stepan_red + Stepan_green + Stepan_blue == 0",
+      "Tetiana_red + Tetiana_green + Tetiana_blue == 0",
+      "Roksolana_red + Stepan_red + Tetiana_red == 1",
+      "Roksolana_green + Stepan_green + Tetiana_green == 1",
+      "Roksolana_blue + Stepan_blue + Tetiana_blue == 1"
+     ]
+    },
+    "errors": [
+     "Invalid domain for 'Roksolana_red': expected [lo, hi] or {\"values\": [...]}.",
+     "Invalid domain for 'Roksolana_green': expected [lo, hi] or {\"values\": [...]}.",
+     "Invalid domain for 'Roksolana_blue': expected [lo, hi] or {\"values\": [...]}.",
+     "Invalid domain for 'Stepan_red': expected [lo, hi] or {\"values\": [...]}.",
+     "Invalid domain for 'Stepan_green': expected [lo, hi] or {\"values\": [...]}.",
+     "Invalid domain for 'Stepan_blue': expected [lo, hi] or {\"values\": [...]}.",
+     "Invalid domain for 'Tetiana_red': expected [lo, hi] or {\"values\": [...]}.",
+     "Invalid domain for 'Tetiana_green': expected [lo, hi] or {\"values\": [...]}.",
+     "Invalid domain for 'Tetiana_blue': expected [lo, hi] or {\"values\": [...]}."
+    ]
+   },
+   {
+    "ir": {
+     "variables": {
+      "Roksolana_red": [
+       0,
+       1
+      ],
+      "Roksolana_green": [
+       0,
+       1
+      ],
+      "Roksolana_blue": [
+       0,
+       1
+      ],
+      "Stepan_red": [
+       0,
+       1
+      ],
+      "Stepan_green": [
+       0,
+       1
+      ],
+      "Stepan_blue": [
+       0,
+       1
+      ],
+      "Tetiana_red": [
+       0,
+       1
+      ],
+      "Tetiana_green": [
+       0,
+       1
+      ],
+      "Tetiana_blue": [
+       0,
+       1
+      ]
+     },
+     "all_different": [
+      [
+       "Roksolana_red",
+       "Stepan_red",
+       "Tetiana_red"
+      ],
+      [
+       "Roksolana_green",
+       "Stepan_green",
+       "Tetiana_green"
+      ],
+      [
+       "Roksolana_blue",
+       "Stepan_blue",
+       "Tetiana_blue"
+      ]
+     ],
+     "constraints": [
+      "Stepan_red + Stepan_green + Stepan_blue == 0",
+      "Tetiana_red + Tetiana_green + Tetiana_blue == 0",
+      "Roksolana_red + Roksolana_green + Roksolana_blue == 1"
+     ]
+    },
+    "errors": []
+   }
+  ],
+  "solver": {
+   "status": "none",
+   "n_solutions": 0,
+   "objective": null,
+   "first_solution": null
+  }
+ },
+ "error": null,
+ "seconds": 9.4,
+ "llm_calls": 2
+}

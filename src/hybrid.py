@@ -48,15 +48,28 @@ Variable names must be identifiers: letters, digits and underscores only, no spa
 
 SYSTEM = "You translate logic puzzles into a formal constraint representation. You answer only with JSON."
 
-# TODO(team): this prompt is the heart of the hybrid pipeline. Things worth considering:
-#   * how should the model choose variables? (one variable per entity? per attribute value?)
-#   * how should it encode positions, days, "morning/afternoon", "next to", "between", "at most"?
-#   * facts that the text does not state but that the model must know (calendar, working week, ...);
-#   * a worked example (few-shot) on a puzzle that is NOT in your set;
-#   * how to encode knights and knaves: a statement S by person X becomes  X == (S).
-FORMALIZER_PROMPT = """Translate the puzzle below into the IR format. Do not solve the puzzle.
+FORMALIZER_PROMPT = """Translate the logic puzzle below into a valid JSON IR for a Z3 integer constraint solver.
+Do not solve the puzzle yourself; only output the JSON object matching the schema.
 
 {ir_spec}
+
+Encoding rules:
+- Use valid Python/JSON identifiers (letters, digits, underscores, starting with a letter or underscore; no spaces or hyphens).
+- When a specific discrete list of numbers/years/values is given in the puzzle, prefer {{"values": [...]}} with exact integers (never booleans true/false). When a continuous/integer range is given, use [lo, hi] with lo <= hi.
+- Put groups of variables that must all take distinct values into a single list inside "all_different" (do not create single-element lists).
+- Write each condition ONCE in "constraints" without repeating or duplicating similar lines. Use only allowed syntax (+ - * // %, == != < <= > >=, and, or, not, abs(), parentheses).
+- For "adjacent" / "next to" / "immediately next to" on a line/grid/floors: use "abs(X - Y) == 1".
+- For "X is immediately to the left of Y" or "directly below Y": use "Y - X == 1" (or "X + 1 == Y").
+- For "X is somewhere to the left of Y" or "on a lower floor than Y" or "before Y": use "X < Y".
+- For "X is N years/units after Y": use "X - Y == N" (or "X == Y + N").
+- For knights and knaves (truth-tellers = 1, liars = 0): if person X in [0, 1] says statement S, encode "(X == 1) == (S)".
+- Include "objective" ({{"maximize": "<expr>"}} or {{"minimize": "<expr>"}}) ONLY when optimisation is asked.
+- Keep the JSON concise and direct; do not repeat constraints.
+
+Example (not from any puzzle set):
+Puzzle: "Three boxes A, B, C have integer weights from 1 to 5. A and B have different weights. A is lighter than B, and B is immediately lighter than C."
+IR:
+{{"variables": {{"A": [1, 5], "B": [1, 5], "C": [1, 5]}}, "all_different": [["A", "B"]], "constraints": ["A < B", "C - B == 1"]}}
 
 Puzzle:
 {text}
@@ -71,26 +84,87 @@ def formalize(problem: dict, feedback: Optional[str] = None) -> dict:
     return parsed.model_dump(exclude_none=True)
 
 
-def validate_ir(ir: dict) -> list:
-    """Return a list of human-readable error messages; an empty list means the IR is valid.
+def _is_strict_int(val: Any) -> bool:
+    return isinstance(val, int) and not isinstance(val, bool)
 
-    TODO(team). Things to check:
-      * every domain is [lo, hi] with lo <= hi, or {"values": [...]} with integers;
-      * every name used in all_different / constraints / objective is a declared variable;
-      * every constraint parses and uses only allowed syntax.
-    Hint: ir_solver.build(ir) raises ValueError with a readable message for unknown variables and
-    unsupported syntax - you can call it inside try/except and turn the exception into an error message.
-    """
-    return []
+
+def validate_ir(ir: dict) -> list:
+    """Return a list of human-readable error messages; an empty list means the IR is valid."""
+    errors: list[str] = []
+
+    if not isinstance(ir, dict):
+        return ["IR must be a JSON object."]
+
+    variables = ir.get("variables")
+    if not isinstance(variables, dict) or not variables:
+        return ["'variables' must be a non-empty dictionary mapping variable names to domains."]
+
+    for name, dom in variables.items():
+        if not isinstance(name, str) or not name.isidentifier():
+            errors.append(f"Invalid variable name '{name}': must be a valid identifier without spaces or special chars.")
+            continue
+
+        if isinstance(dom, list):
+            if len(dom) != 2 or not _is_strict_int(dom[0]) or not _is_strict_int(dom[1]):
+                errors.append(f"Domain for '{name}' must be a list of two integers [lo, hi].")
+            elif dom[0] > dom[1]:
+                errors.append(f"Invalid domain bounds for '{name}': lower bound {dom[0]} is greater than upper bound {dom[1]}.")
+        elif isinstance(dom, dict):
+            if set(dom.keys()) != {"values"} or not isinstance(dom["values"], list) or not dom["values"]:
+                errors.append(f"Domain object for '{name}' must contain a non-empty list 'values'.")
+            elif not all(_is_strict_int(v) for v in dom["values"]):
+                errors.append(f"All elements in '{name}.values' must be integers.")
+        else:
+            errors.append(f"Invalid domain for '{name}': expected [lo, hi] or {{\"values\": [...]}}.")
+
+    all_diff = ir.get("all_different", [])
+    if all_diff is not None:
+        if not isinstance(all_diff, list):
+            errors.append("'all_different' must be a list of variable name lists.")
+        else:
+            for idx, group in enumerate(all_diff):
+                if not isinstance(group, list) or not all(isinstance(v, str) for v in group):
+                    errors.append(f"'all_different[{idx}]' must be a list of variable name strings.")
+                    continue
+                for var_name in group:
+                    if var_name not in variables:
+                        errors.append(f"Unknown variable '{var_name}' in all_different[{idx}].")
+
+    constraints = ir.get("constraints", [])
+    if constraints is not None:
+        if not isinstance(constraints, list) or not all(isinstance(c, str) for c in constraints):
+            errors.append("'constraints' must be a list of constraint strings.")
+
+    objective = ir.get("objective")
+    if objective is not None:
+        if not isinstance(objective, dict) or len(objective) != 1:
+            errors.append("'objective' must be a single-key dict with 'maximize' or 'minimize'.")
+        else:
+            sense, expr = next(iter(objective.items()))
+            if sense not in ("maximize", "minimize") or not isinstance(expr, str) or not expr.strip():
+                errors.append("'objective' must map 'maximize' or 'minimize' to a non-empty expression string.")
+
+    if isinstance(all_diff, list):
+        for idx, group in enumerate(all_diff):
+            if isinstance(group, list) and len(group) < 2:
+                errors.append(f"'all_different[{idx}]' must contain at least two variables.")
+
+    if isinstance(constraints, list) and all(isinstance(c, str) for c in constraints):
+        if len(constraints) != len(set(constraints)):
+            errors.append("'constraints' contains duplicate expressions; remove duplicates.")
+
+    if not errors:
+        try:
+            ir_solver.build(ir)
+        except Exception as exc:
+            errors.append(f"IR validation failed in solver build: {exc}")
+
+    return errors
 
 
 def run_solver(ir: dict) -> dict:
-    """Run Z3 on the IR. Returns {"status": ..., "solutions": [...], "objective": ...}.
-
-    TODO(team): with limit=1 the solver stops after the first solution, so it reports "unique" even when
-    several solutions exist. Think about what limit you need to tell "unique" from "multiple".
-    """
-    return ir_solver.solve(ir, limit=1)
+    """Run Z3 on the IR. Returns {"status": ..., "solutions": [...], "objective": ...}."""
+    return ir_solver.solve(ir, limit=10)
 
 
 PRESENT_PROMPT = """A puzzle has been solved by a constraint solver. Rewrite the solver's result in the required
@@ -109,18 +183,16 @@ Solver assignment (variable -> value):
 
 
 def present(problem: dict, ir: dict, result: dict) -> dict:
-    """Turn the solver result into the required answer format.
-
-    Provided baseline: the model translates the assignment. This is a weak point - the model can
-    introduce errors AFTER the solver. Status and objective are always taken from the solver, never
-    from the model. Extension: write deterministic code for problem types where the mapping is obvious.
-    """
+    """Turn the solver result into the required answer format."""
     status = result["status"]
     if status == "none":
         return Answer(status="none").model_dump()
-    prompt = PRESENT_PROMPT.format(text=problem["text"], ir=json.dumps(ir, ensure_ascii=False),
-                                   assignment=json.dumps(result["solutions"][0], ensure_ascii=False),
-                                   answer_format=problem["answer_format"])
+    prompt = PRESENT_PROMPT.format(
+        text=problem["text"],
+        ir=json.dumps(ir, ensure_ascii=False),
+        assignment=json.dumps(result["solutions"][0], ensure_ascii=False),
+        answer_format=problem["answer_format"],
+    )
     parsed, raw = llm.ask_json(prompt, Answer)
     return Answer(status=status, solution=parsed.solution, objective=result.get("objective")).model_dump()
 
@@ -133,18 +205,25 @@ def solve(problem: dict) -> dict:
     errors = validate_ir(ir)
     trace["attempts"].append({"ir": ir, "errors": errors})
 
-    # TODO(team): if `errors` is not empty, make ONE more attempt:
-    #   ir = formalize(problem, feedback="\n".join(errors)); errors = validate_ir(ir); record it in trace.
+    if errors:
+        retry_ir = formalize(problem, feedback="\n".join(errors))
+        retry_errors = validate_ir(retry_ir)
+        trace["attempts"].append({"ir": retry_ir, "errors": retry_errors})
+        ir, errors = retry_ir, retry_errors
+
     if errors:
         raise HybridError("invalid IR: " + "; ".join(errors))
 
     try:
         result = run_solver(ir)
-    except ValueError as e:                      # the solver rejected the IR
+    except ValueError as e:  # the solver rejected the IR
         raise HybridError(f"solver rejected the IR: {e}") from e
-    trace["solver"] = {"status": result["status"], "n_solutions": len(result["solutions"]),
-                       "objective": result.get("objective"),
-                       "first_solution": result["solutions"][0] if result["solutions"] else None}
+    trace["solver"] = {
+        "status": result["status"],
+        "n_solutions": len(result["solutions"]),
+        "objective": result.get("objective"),
+        "first_solution": result["solutions"][0] if result["solutions"] else None,
+    }
 
     answer = present(problem, ir, result)
     return {"answer": answer, "trace": trace}

@@ -1,0 +1,153 @@
+{
+ "problem": "F2",
+ "pipeline": "hybrid",
+ "run": 1,
+ "model": "qwen2.5:3b",
+ "timestamp": "2026-11-25T15:31:01",
+ "answer": {
+  "status": "multiple",
+  "solution": {
+   "Poetry": 2008,
+   "Biography": 2003,
+   "Novel": 2004,
+   "Essays": 2002,
+   "Memoir": 2001
+  },
+  "objective": null
+ },
+ "trace": {
+  "attempts": [
+   {
+    "ir": {
+     "variables": {
+      "poetry": [
+       2001,
+       2004,
+       2009,
+       2013,
+       2020
+      ],
+      "biography": [
+       2001,
+       2004,
+       2009,
+       2013,
+       2020
+      ],
+      "novel": [
+       2001,
+       2004,
+       2009,
+       2013,
+       2020
+      ],
+      "essay": [
+       2001,
+       2004,
+       2009,
+       2013,
+       2020
+      ],
+      "memoir": [
+       2001,
+       2004,
+       2009,
+       2013,
+       2020
+      ]
+     },
+     "all_different": [
+      [
+       "poetry"
+      ],
+      [
+       "biography"
+      ],
+      [
+       "novel"
+      ],
+      [
+       "essay"
+      ],
+      [
+       "memoir"
+      ]
+     ],
+     "constraints": [
+      "(poetry - biography) == 5",
+      "novel < poetry",
+      "essay > memoir"
+     ]
+    },
+    "errors": [
+     "Domain for 'poetry' must be a list of two integers [lo, hi].",
+     "Domain for 'biography' must be a list of two integers [lo, hi].",
+     "Domain for 'novel' must be a list of two integers [lo, hi].",
+     "Domain for 'essay' must be a list of two integers [lo, hi].",
+     "Domain for 'memoir' must be a list of two integers [lo, hi].",
+     "'all_different[0]' must contain at least two variables.",
+     "'all_different[1]' must contain at least two variables.",
+     "'all_different[2]' must contain at least two variables.",
+     "'all_different[3]' must contain at least two variables.",
+     "'all_different[4]' must contain at least two variables."
+    ]
+   },
+   {
+    "ir": {
+     "variables": {
+      "poetry": [
+       2001,
+       2020
+      ],
+      "biography": [
+       2001,
+       2020
+      ],
+      "novel": [
+       2001,
+       2020
+      ],
+      "essay": [
+       2001,
+       2020
+      ],
+      "memoir": [
+       2001,
+       2020
+      ]
+     },
+     "all_different": [
+      [
+       "poetry",
+       "biography",
+       "novel",
+       "essay",
+       "memoir"
+      ]
+     ],
+     "constraints": [
+      "(poetry - biography) == 5",
+      "novel < poetry",
+      "essay - memoir == 1"
+     ]
+    },
+    "errors": []
+   }
+  ],
+  "solver": {
+   "status": "multiple",
+   "n_solutions": 10,
+   "objective": null,
+   "first_solution": {
+    "poetry": 2008,
+    "biography": 2003,
+    "novel": 2004,
+    "essay": 2002,
+    "memoir": 2001
+   }
+  }
+ },
+ "error": null,
+ "seconds": 8.1,
+ "llm_calls": 3
+}

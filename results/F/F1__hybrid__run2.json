@@ -1,0 +1,276 @@
+{
+ "problem": "F1",
+ "pipeline": "hybrid",
+ "run": 2,
+ "model": "qwen2.5:3b",
+ "timestamp": "2026-11-25T15:30:33",
+ "answer": {
+  "status": "none",
+  "solution": {},
+  "objective": null
+ },
+ "trace": {
+  "attempts": [
+   {
+    "ir": {
+     "variables": {
+      "A1": [
+       1,
+       10
+      ],
+      "A2": [
+       1,
+       10
+      ],
+      "A3": [
+       1,
+       10
+      ],
+      "A4": [
+       1,
+       10
+      ],
+      "A5": [
+       1,
+       10
+      ],
+      "A6": [
+       1,
+       10
+      ],
+      "A7": [
+       1,
+       10
+      ],
+      "A8": [
+       1,
+       10
+      ]
+     },
+     "all_different": [
+      [
+       "A1"
+      ],
+      [
+       "A2"
+      ],
+      [
+       "A3"
+      ],
+      [
+       "A4"
+      ],
+      [
+       "A5"
+      ],
+      [
+       "A6"
+      ],
+      [
+       "A7"
+      ],
+      [
+       "A8"
+      ]
+     ],
+     "constraints": [
+      "(A1 - A2) > 0",
+      "(A1 - A3) > 0",
+      "(A1 - A4) > 0",
+      "(A1 - A5) > 0",
+      "(A1 - A6) > 0",
+      "(A1 - A7) > 0",
+      "(A1 - A8) > 0",
+      "(A2 - A1) > 0",
+      "(A2 - A3) > 0",
+      "(A2 - A4) > 0",
+      "(A2 - A5) > 0",
+      "(A2 - A6) > 0",
+      "(A2 - A7) > 0",
+      "(A2 - A8) > 0",
+      "(A3 - A1) > 0",
+      "(A3 - A2) > 0",
+      "(A3 - A4) > 0",
+      "(A3 - A5) > 0",
+      "(A3 - A6) > 0",
+      "(A3 - A7) > 0",
+      "(A3 - A8) > 0",
+      "(A4 - A1) > 0",
+      "(A4 - A2) > 0",
+      "(A4 - A3) > 0",
+      "(A4 - A5) > 0",
+      "(A4 - A6) > 0",
+      "(A4 - A7) > 0",
+      "(A4 - A8) > 0",
+      "(A5 - A1) > 0",
+      "(A5 - A2) > 0",
+      "(A5 - A3) > 0",
+      "(A5 - A4) > 0",
+      "(A5 - A6) > 0",
+      "(A5 - A7) > 0",
+      "(A5 - A8) > 0",
+      "(A6 - A1) > 0",
+      "(A6 - A2) > 0",
+      "(A6 - A3) > 0",
+      "(A6 - A4) > 0",
+      "(A6 - A5) > 0",
+      "(A6 - A7) > 0",
+      "(A6 - A8) > 0",
+      "(A7 - A1) > 0",
+      "(A7 - A2) > 0",
+      "(A7 - A3) > 0",
+      "(A7 - A4) > 0",
+      "(A7 - A5) > 0",
+      "(A7 - A6) > 0",
+      "(A7 - A8) > 0",
+      "(A8 - A1) > 0",
+      "(A8 - A2) > 0",
+      "(A8 - A3) > 0",
+      "(A8 - A4) > 0",
+      "(A8 - A5) > 0",
+      "(A8 - A6) > 0",
+      "(A8 - A7) > 0"
+     ],
+     "objective": {
+      "minimize": "A1 + A2 + A3 + A4 + A5 + A6 + A7 + A8"
+     }
+    },
+    "errors": [
+     "'all_different[0]' must contain at least two variables.",
+     "'all_different[1]' must contain at least two variables.",
+     "'all_different[2]' must contain at least two variables.",
+     "'all_different[3]' must contain at least two variables.",
+     "'all_different[4]' must contain at least two variables.",
+     "'all_different[5]' must contain at least two variables.",
+     "'all_different[6]' must contain at least two variables.",
+     "'all_different[7]' must contain at least two variables."
+    ]
+   },
+   {
+    "ir": {
+     "variables": {
+      "Kyiv": [
+       1,
+       8
+      ],
+      "Zhytomyr": [
+       1,
+       8
+      ],
+      "Vinnytsia": [
+       1,
+       8
+      ],
+      "Cherkasy": [
+       1,
+       8
+      ],
+      "Poltava": [
+       1,
+       8
+      ],
+      "Chernihiv": [
+       1,
+       8
+      ],
+      "Sumy": [
+       1,
+       8
+      ],
+      "Uman": [
+       1,
+       8
+      ]
+     },
+     "all_different": [
+      [
+       "Kyiv",
+       "Zhytomyr"
+      ],
+      [
+       "Kyiv",
+       "Vinnytsia"
+      ],
+      [
+       "Kyiv",
+       "Cherkasy"
+      ],
+      [
+       "Kyiv",
+       "Poltava"
+      ],
+      [
+       "Kyiv",
+       "Chernihiv"
+      ],
+      [
+       "Zhytomyr",
+       "Vinnytsia"
+      ],
+      [
+       "Vinnytsia",
+       "Cherkasy"
+      ],
+      [
+       "Cherkasy",
+       "Poltava"
+      ],
+      [
+       "Poltava",
+       "Chernihiv"
+      ],
+      [
+       "Chernihiv",
+       "Zhytomyr"
+      ],
+      [
+       "Sumy",
+       "Poltava"
+      ],
+      [
+       "Sumy",
+       "Chernihiv"
+      ],
+      [
+       "Uman",
+       "Vinnytsia"
+      ],
+      [
+       "Uman",
+       "Cherkasy"
+      ]
+     ],
+     "constraints": [
+      "Kyiv - Zhytomyr == 1",
+      "Kyiv - Vinnytsia == 1",
+      "Kyiv - Cherkasy == 1",
+      "Kyiv - Poltava == 1",
+      "Kyiv - Chernihiv == 1",
+      "Zhytomyr - Vinnytsia == 1",
+      "Vinnytsia - Cherkasy == 1",
+      "Cherkasy - Poltava == 1",
+      "Poltava - Chernihiv == 1",
+      "Chernihiv - Zhytomyr == 1",
+      "Sumy - Poltava == 1",
+      "Sumy - Chernihiv == 1",
+      "Uman - Vinnytsia == 1",
+      "Uman - Cherkasy == 1"
+     ],
+     "objective": {
+      "minimize": "Kyiv + Zhytomyr + Vinnytsia + Cherkasy + Poltava + Chernihiv + Sumy + Uman"
+     }
+    },
+    "errors": []
+   }
+  ],
+  "solver": {
+   "status": "none",
+   "n_solutions": 0,
+   "objective": null,
+   "first_solution": null
+  }
+ },
+ "error": null,
+ "seconds": 15.3,
+ "llm_calls": 2
+}

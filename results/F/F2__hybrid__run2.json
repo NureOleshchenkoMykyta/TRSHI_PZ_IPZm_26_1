@@ -1,0 +1,13 @@
+{
+ "problem": "F2",
+ "pipeline": "hybrid",
+ "run": 2,
+ "model": "qwen2.5:3b",
+ "timestamp": "2026-11-25T15:31:09",
+ "answer": null,
+ "trace": null,
+ "error": "HybridError: invalid IR: 'all_different[0]' must contain at least two variables.; 'all_different[1]' must contain at least two variables.; 'all_different[2]' must contain at least two variables.; 'all_different[3]' must contain at least two variables.; 'all_different[4]' must contain at least two variables.",
+ "traceback": "Traceback (most recent call last):\n  File \"D:\\VisualStudio2026Repos\\hybrid-practice\\src\\run.py\", line 41, in run_one\n    out = PIPELINES[name].solve(problem)\n  File \"D:\\VisualStudio2026Repos\\hybrid-practice\\src\\hybrid.py\", line 215, in solve\n    raise HybridError(\"invalid IR: \" + \"; \".join(errors))\nhybrid.HybridError: invalid IR: 'all_different[0]' must contain at least two variables.; 'all_different[1]' must contain at least two variables.; 'all_different[2]' must contain at least two variables.; 'all_different[3]' must contain at least two variables.; 'all_different[4]' must contain at least two variables.\n",
+ "seconds": 4.1,
+ "llm_calls": 2
+}
